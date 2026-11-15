@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this code or the estimates, please cite them as below."
+title: "japan-traffic-no2: nationwide traffic-related NO2 and nighttime road traffic noise at residential locations in Japan, 2015-2023"
+authors:
+  - family-names: Matsushita
+    given-names: Daisuke
+    orcid: "https://orcid.org/0000-0002-6765-9366"
+    affiliation: "Osaka Metropolitan University"
+license: MIT
+repository-code: "https://github.com/m138/japan-traffic-no2"
+version: "0.1.0"
+date-released: "2026-11-15"
+keywords:
+  - nitrogen dioxide
+  - road traffic noise
+  - exposure assessment
+  - land use regression
+  - Japan
+  - cities
