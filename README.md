@@ -1,6 +1,10 @@
-# Traffic-related NO2 and night noise at 12 million homes in Japan, 2015–2023
+# Nitrogen dioxide and nighttime road traffic noise at 12 million homes in Japan, 2015–2023
 
-Code and estimates for the paper "[title to be fixed]" (Daisuke Matsushita, ORCID 0000-0002-6765-9366; in preparation for *Nature Cities*). The model estimates the annual mean nitrogen dioxide (NO2) concentration at about 12.3 million residential locations that cover the whole population of Japan, for every fiscal year from 2015 to 2023. It uses only public data: the national Road Traffic Census, the population census, the national air quality monitoring network and a satellite-derived surface NO2 product. The same locations carry the nighttime road traffic noise (Lnight) of the companion model [japan-night-road-noise](https://github.com/m138/japan-night-road-noise), so the two exposures can be compared at the same homes.
+Code and estimates for the paper "Diverging trends in nitrogen dioxide and nighttime road traffic noise in Japanese cities" (Daisuke Matsushita, ORCID 0000-0002-6765-9366; submitted). The model estimates the annual mean nitrogen dioxide (NO2) concentration at about 12.3 million residential locations that cover the whole population of Japan, for every fiscal year from 2015 to 2023. It uses only public data: the national Road Traffic Census, the population census, the national air quality monitoring network and a satellite-derived surface NO2 product. The same locations carry the nighttime road traffic noise (Lnight) of the companion model [japan-night-road-noise](https://github.com/m138/japan-night-road-noise), so the two exposures can be compared at the same homes.
+
+<p align="center"><img src="figures/fig3.png" width="720" alt="Bar charts and a map of Japan showing the share of residents with high co-exposure to nighttime road traffic noise and NO2, by type of municipality, by distance to the nearest main road and by municipality"></p>
+
+*Residents with high co-exposure (Lnight ≥ 55 dB and NO2 ≥ 20 µg/m³), by type of municipality, by distance to the nearest main road and by municipality (Fig. 3 of the paper). Interactive map: https://m138.github.io/japan-traffic-no2/ . Map lines delineate study areas and do not necessarily depict accepted national boundaries.*
 
 > Status: pre-publication. The paper citation and the Zenodo DOIs will be added when they exist ([ ] below).
 
@@ -30,6 +34,13 @@ gdf.plot(column="NO2_2023", legend=True)
 ## Accuracy
 Leave-one-prefecture-out cross-validation against about 1,600 stations per year: R² 0.78–0.81 (all stations), 0.46–0.60 (roadside stations), RMSE about 2 ppb. In the same test, the 1 km global models of Anenberg et al. (2022) and Cooper et al. (2022) reached R² 0.42–0.43 and almost no skill at roadside stations. The estimates are meant for comparing places and years, not for predicting the concentration at a single address.
 
+## Main results
+- From fiscal year 2015 to 2023, measured NO2 fell by 37% at roadside stations, whereas nighttime noise measured along roads fell by only 0.75 dB (figures/fig2.png).
+- An estimated 8.9% of residents (11.2 million) had high co-exposure; 70% of them lived in Tokyo's 23 wards and the designated cities, which hold 30% of the population, and 83% within 100 m of a main road (figures/fig3.png).
+- NO2 varies mainly between municipalities (92% of the population-weighted variance) and nighttime noise mainly within them (11% between municipalities) (figures/fig4.png).
+
+Figures 1–4 of the paper are in `figures/` and are made by `src/make_figures.py`. The interactive map (`docs/`) shows NO2 for each fiscal year, its change, the near-road contribution, nighttime noise and high co-exposure by municipality; `src/make_webmap_data.py` makes its data.
+
 ## What the code does
 1. Computes NOx emissions for every section of the 2015 and 2021 Road Traffic Census from traffic counts, travel speed and the speed-dependent emission factors of NILIM Technical Note 671 (by calendar year).
 2. Places residential locations in the 2020 census small areas (about one per 10 residents, random seed 20261106; points on carriageways removed). These are the same locations as in japan-night-road-noise.
@@ -42,7 +53,7 @@ The order of the scripts and their arguments are in [PIPELINE.md](PIPELINE.md). 
 ## Main limitations
 - Only roads in the Road Traffic Census are explicit sources; local roads enter through the background terms.
 - Traffic counts exist for two census years (2015, 2021). Changes between them come from emission factors, the yearly model coefficients and kriging of the monitoring data.
-- Roadside stations are predicted less well than general stations; street-canyon effects and intersections are not modeled.
+- Roadside stations are predicted less well than ambient stations; street-canyon effects and intersections are not modeled.
 - Estimates are outdoor values at the location; floor, facade orientation and windows are not considered.
 
 ## License

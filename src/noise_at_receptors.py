@@ -1,17 +1,17 @@
 """Night road noise (paper A model v4: ASJ RTN-Model 2018 simplified, census roads, 200 m, region/road-type bias correction, 40 dB floor)
 computed at the NO2 receptors, so that both exposures are at the same points. Setup copied from japan-night-road-noise/src/noise_national.py.
 Usage: noise_at_receptors.py W NOISE_LIB_DIR NZ_DIR pref [pref ...]
-Environment NOISE_NET=2015|2021 (default 2021, directional volumes as in v4) or NOISE_NET=2015T|2021T (two-way totals, needed for H27)   (NZ_DIR has census27.csv, national_validation_points.csv, geo/)"""
+Environment NOISE_CUT=search distance in m (default 200; output noise_rec_c{CUT}). NOISE_NET=2015|2021 (default 2021, directional volumes as in v4) or NOISE_NET=2015T|2021T (two-way totals, needed for H27)   (NZ_DIR has census27.csv, national_validation_points.csv, geo/)"""
 import pandas as pd, numpy as np, shapely, sys, os, time
 sys.path.insert(0,sys.argv[2]); import noise_lib as nl
-W,_,S=sys.argv[1:4]; PREFS=sys.argv[4:]; H=4.0; CUT=200.0
+W,_,S=sys.argv[1:4]; PREFS=sys.argv[4:]; H=4.0; CUT=float(os.environ.get('NOISE_CUT','200'))
 REG={**{p:'北海道・東北' for p in ['01','02','03','04','05','06','07']},**{p:'関東' for p in ['08','09','10','11','12','13','14']},**{p:'中部' for p in ['15','16','17','18','19','20','21','22','23']},
      **{p:'近畿' for p in ['24','25','26','27','28','29','30']},**{p:'中国・四国' for p in ['31','32','33','34','35','36','37','38','39']},**{p:'九州・沖縄' for p in ['40','41','42','43','44','45','46','47']}}
 V=pd.read_csv(f'{S}/national_validation_points.csv',dtype={'pref':str})
 bias_gen=V[V.grp=='gen'].groupby(V.pref.map(REG)).err.mean().to_dict(); V['rtc']=V.rt.astype(str).str[0].where(V.rt.astype(str).str[0].isin(['1','2']),'other')
 bias_mw=V[V.grp=='mw'].groupby('rtc').err.mean().to_dict()
 prof=nl.night_profile(f'{S}/census27.csv')
-NET=os.environ.get('NOISE_NET','2021'); TAG='' if NET=='2021' else '_'+NET
+NET=os.environ.get('NOISE_NET','2021'); TAG=('' if NET=='2021' else '_'+NET)+('' if CUT==200 else f'_c{int(CUT)}')
 if NET.endswith('T'):
     import geopandas as gpd
     G=gpd.read_parquet(f'{S}/geo/traffic_census_{NET[:4]}_converted.parquet'); n=lambda c: pd.to_numeric(G[c],errors='coerce')

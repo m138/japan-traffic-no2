@@ -1,6 +1,8 @@
-# 日本全国の住居地点における交通由来NO2と夜間道路交通騒音（2015〜2023年度）
+# 日本全国の住居地点における二酸化窒素と夜間道路交通騒音（2015〜2023年度）
 
-論文「[表題は確定後に記入]」（松下大輔、ORCID 0000-0002-6765-9366、Nature Cities に投稿準備中）のコードと推計値です。公開データだけを使い、日本の全人口をカバーする約1,230万の住居地点で、2015〜2023年度の各年度の二酸化窒素（NO2）年平均濃度を推計します。同じ地点に姉妹モデル [japan-night-road-noise](https://github.com/m138/japan-night-road-noise) の夜間騒音（Lnight）を付けているので、二つの暴露を同じ住まいで比べられます。
+論文「Diverging trends in nitrogen dioxide and nighttime road traffic noise in Japanese cities」（松下大輔、ORCID 0000-0002-6765-9366、投稿中）のコードと推計値です。公開データだけを使い、日本の全人口をカバーする約1,230万の住居地点で、2015〜2023年度の各年度の二酸化窒素（NO2）年平均濃度を推計します。同じ地点に姉妹モデル [japan-night-road-noise](https://github.com/m138/japan-night-road-noise) の夜間騒音（Lnight）を付けているので、二つの暴露を同じ住まいで比べられます。
+
+図1〜4は figures/ にあります（src/make_figures.py で作成）。市区町村別のインタラクティブ地図：https://m138.github.io/japan-traffic-no2/ （年度別のNO2、変化率、道路の寄与分、夜間騒音、二重高暴露）。
 
 > 状態：公表前です。論文の引用とZenodoのDOIは決まり次第記入します（下の [ ]）。
 

@@ -66,4 +66,20 @@ python src/joint_noise.py W A38-14_GML/A38-14.dbf    # secondary medical areas (
 ```
 python src/measured_trends.py TN_DIR W/stations_all.csv OUT   # TN_DIR: noise monitoring 2015-2023 (tn2015...tn2023)
 python src/urban_form.py W OUT
+python src/measured_trends_robust.py TN_DIR W/stations_all.csv OUT   # same estimate with subsets of sites (Extended Data Table 2)
+```
+
+## 9. Numbers in the paper, sensitivity of exposure, figures and web map
+```
+python src/unified_stats.py W RELEASE_PARQUET A38_DBF OUT        # key numbers, Table 1, correlations by spatial unit
+python src/ed_thresholds.py W RELEASE_PARQUET OUT                # Extended Data Table 1 (other thresholds)
+# Placement on building land (Extended Data Table 3); LU_DIR: National Land Numerical Information L03-b (2021)
+python src/popalloc_building.py W W2 LU_DIR 01 02 ... 47
+NOISE_CUT=200 python src/noise_at_receptors.py W2 path/to/japan-night-road-noise/src W2/nz 01 02 ... 47
+python src/popalloc_compare.py W W2 RELEASE_PARQUET OUT 01 02 ... 47
+# Cutoff distance of 500 m for noise sources (Extended Data Table 3)
+NOISE_CUT=500 python src/noise_at_receptors.py W path/to/japan-night-road-noise/src W/nz 01 02 ... 47
+python src/cutoff_sensitivity.py W RELEASE_PARQUET NEAREST_ROAD_PARQUET OUT
+python src/make_figures.py WORK BOUNDARIES.gpkg figures/   # Figures 1-4
+python src/make_webmap_data.py RELEASE_PARQUET path/to/japan-night-road-noise/docs/muni.geojson docs/muni.geojson
 ```
