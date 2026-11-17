@@ -2,9 +2,9 @@
 
 Code and estimates for the paper "Diverging trends in nitrogen dioxide and nighttime road traffic noise in Japanese cities" (Daisuke Matsushita, ORCID 0000-0002-6765-9366; submitted). The model estimates the annual mean nitrogen dioxide (NO2) concentration at about 12.3 million residential locations that cover the whole population of Japan, for every fiscal year from 2015 to 2023. It uses only public data: the national Road Traffic Census, the population census, the national air quality monitoring network and a satellite-derived surface NO2 product. The same locations carry the nighttime road traffic noise (Lnight) of the companion model [japan-night-road-noise](https://github.com/m138/japan-night-road-noise), so the two exposures can be compared at the same homes.
 
-<p align="center"><img src="figures/fig3.png" width="720" alt="Bar charts and a map of Japan showing the share of residents with high co-exposure to nighttime road traffic noise and NO2, by type of municipality, by distance to the nearest main road and by municipality"></p>
+<p align="center"><img src="docs/images/map_municipal_coexposure.png" width="600" alt="Map of Japan showing, by municipality, the share of residents with high co-exposure to nighttime road traffic noise and NO2"></p>
 
-*Residents with high co-exposure (Lnight ≥ 55 dB and NO2 ≥ 20 µg/m³), by type of municipality, by distance to the nearest main road and by municipality (Fig. 3 of the paper). Interactive map: https://m138.github.io/japan-traffic-no2/ . Map lines delineate study areas and do not necessarily depict accepted national boundaries.*
+*Share of residents with high co-exposure (Lnight ≥ 55 dB and NO2 ≥ 20 µg/m³, fiscal year 2022) by municipality. Interactive map: https://m138.github.io/japan-traffic-no2/ . Map lines delineate study areas and do not necessarily depict accepted national boundaries. Made by `src/make_readme_map.py`.*
 
 > Status: pre-publication. The paper citation and the Zenodo DOIs will be added when they exist ([ ] below).
 
