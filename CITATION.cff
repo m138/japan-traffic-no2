@@ -8,8 +8,9 @@ authors:
     affiliation: "Osaka Metropolitan University"
 license: MIT
 repository-code: "https://github.com/m138/japan-traffic-no2"
-version: "0.1.0"
-date-released: "2026-11-15"
+version: "1.0.0"
+doi: "10.5281/zenodo.24299223"
+date-released: "2026-11-17"
 keywords:
   - nitrogen dioxide
   - road traffic noise

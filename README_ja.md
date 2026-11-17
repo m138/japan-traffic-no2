@@ -4,10 +4,10 @@
 
 図1〜4は figures/ にあります（src/make_figures.py で作成）。市区町村別のインタラクティブ地図：https://m138.github.io/japan-traffic-no2/ （年度別のNO2、変化率、道路の寄与分、夜間騒音、二重高暴露）。
 
-> 状態：公表前です。論文の引用とZenodoのDOIは決まり次第記入します（下の [ ]）。
+> 状態：論文は審査中です。推計値：https://doi.org/10.5281/zenodo.24299015 。コード（v1.0.0）：https://doi.org/10.5281/zenodo.24299223 。
 
 ## 推計値の入手
-推計値はZenodo（[DOI]）でCC BY 4.0により公開します。主なファイルは次のとおりです。列の定義は data_dictionary/ にあります。
+推計値はZenodo（https://doi.org/10.5281/zenodo.24299015）でCC BY 4.0により公開しています。主なファイルは次のとおりです。列の定義は data_dictionary/ にあります。
 - small_area_no2_noise_2015_2023.csv：2020年国勢調査の小地域（KEY_CODE）ごと
 - no2_2015_2023_by_municipality.csv、no2_2015_2023_by_prefecture.csv：市区町村・都道府県ごと
 - receptors_no2_noise_2015_2023.parquet：住居地点（1,230万点、経緯度）ごと

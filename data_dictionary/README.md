@@ -1,6 +1,6 @@
 # NO2 and nighttime road traffic noise at residential locations in Japan, FY2015–2023
 
-Estimates for the paper "Diverging trends in nitrogen dioxide and nighttime road traffic noise in Japanese cities" (Daisuke Matsushita, Osaka Metropolitan University, ORCID 0000-0002-6765-9366). Code: https://github.com/m138/japan-traffic-no2 ([code DOI]).
+Estimates for the paper "Diverging trends in nitrogen dioxide and nighttime road traffic noise in Japanese cities" (Daisuke Matsushita, Osaka Metropolitan University, ORCID 0000-0002-6765-9366). Code: https://github.com/m138/japan-traffic-no2 (https://doi.org/10.5281/zenodo.24299223).
 
 Annual mean NO2 (ppb) at 12,298,351 residential locations covering the 2020 population of Japan, for fiscal years 2015–2023, with the part explained by nearby census roads and the nighttime road traffic noise (Lnight, 2021 traffic) of the companion model japan-night-road-noise. Leave-one-prefecture-out R² against monitoring stations: 0.78–0.81 (all), 0.46–0.60 (roadside).
 

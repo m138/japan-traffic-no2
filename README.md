@@ -6,10 +6,10 @@ Code and estimates for the paper "Diverging trends in nitrogen dioxide and night
 
 *Share of residents with high co-exposure (Lnight ≥ 55 dB and NO2 ≥ 20 µg/m³, fiscal year 2022) by municipality. Interactive map: https://m138.github.io/japan-traffic-no2/ . Map lines delineate study areas and do not necessarily depict accepted national boundaries. Made by `src/make_readme_map.py`.*
 
-> Status: pre-publication. The paper citation and the Zenodo DOIs will be added when they exist ([ ] below).
+> Status: the paper is under review. Estimates: https://doi.org/10.5281/zenodo.24299015 . Code (v1.0.0): https://doi.org/10.5281/zenodo.24299223 .
 
 ## Get the estimates (no need to run the model)
-The estimates are deposited in Zenodo ([DOI]) under CC BY 4.0. Most users need only one of these files:
+The estimates are deposited in Zenodo (https://doi.org/10.5281/zenodo.24299015) under CC BY 4.0. Most users need only one of these files:
 
 | File | One row per | Use it for |
 |---|---|---|
@@ -61,4 +61,9 @@ The order of the scripts and their arguments are in [PIPELINE.md](PIPELINE.md). 
 - Estimates (Zenodo): CC BY 4.0. Please also credit the data sources listed in DATA_SOURCES.md.
 
 ## Citation
-[Citation of the paper and the Zenodo DOI]
+If you use the estimates or the code, please cite:
+
+- Matsushita, D. Nitrogen dioxide and nighttime road traffic noise at residential points in Japan, fiscal years 2015–2023. Zenodo https://doi.org/10.5281/zenodo.24299015 (2026).
+- Matsushita, D. japan-traffic-no2: code for nationwide NO2 and nighttime road traffic noise in Japan (v1.0.0). Zenodo https://doi.org/10.5281/zenodo.24299223 (2026).
+
+The citation of the paper will be added when it is published.
