@@ -59,7 +59,7 @@ Units: NO2 in ppb (multiply by 1.88 for µg/m³); noise in dB (A-weighted). Fisc
 | length_km | Geodesic length of the section |
 | nox_g_km_day, nox_t_year | NOx emissions with emission factors of the census year |
 
-## results/
+## results/ (results.zip on Zenodo)
 Summary tables behind the paper (English column names): key_numbers.csv, table1_by_municipality_type.csv, correlation_by_level.csv, measured_trends_2015_2023.csv and measured_trends_robustness.csv (site fixed-effect trends of measured NO2 and noise), sites_by_year.csv, sensitivity_cutoff_500m.csv, sensitivity_building_land_placement.csv, noise_validation_cutoffs.csv, sensitivity_kriging.csv, sensitivity_emissions.csv, comparison_external_models.csv.
 
 ## Other files
