@@ -75,9 +75,11 @@ s = b[b.fy == 2022]
 for k, col, lab in [('gen', BLUE, 'Ambient'), ('road', ORANGE, 'Roadside')]:
     t = s[s.kind == k]
     ax.scatter(t.NO2_obs, t.NO2_lopo, s=3, color=col, alpha=.55, lw=0, label=f'{lab} (n = {len(t):,}; R² {r2(t.NO2_obs, t.NO2_lopo):.2f})')
+t = s[~s.kind.isin(['gen', 'road'])]
+ax.scatter(t.NO2_obs, t.NO2_lopo, s=9, color='0.25', lw=0, zorder=5, label=f'Remote background (n = {len(t)})')
 lim = (0, 32)
 ax.plot(lim, lim, color=INK2, lw=.6, ls='--'); ax.set_xlim(lim); ax.set_ylim(lim); ax.set_aspect('equal')
-ax.set_xlabel('Measured NO2 (ppb)'); ax.set_ylabel('Cross-validated prediction (ppb)')
+ax.set_xlabel('Measured NO$_2$ (ppb)'); ax.set_ylabel('Cross-validated prediction (ppb)')
 ax.text(.03, .97, f'All stations: R² = {r2(s.NO2_obs, s.NO2_lopo):.2f}, RMSE = {np.sqrt(((s.NO2_obs - s.NO2_lopo) ** 2).mean()):.2f} ppb',
         transform=ax.transAxes, va='top', fontsize=6.3)
 ax.legend(loc='lower right', frameon=False, markerscale=2.5, handletextpad=.2, fontsize=6)
@@ -97,12 +99,12 @@ for ser, col, lab in [('NO2 自排局（%変化）', ORANGE, 'Roadside stations 
     d = t[t.series == ser]
     axs[0].fill_between(d.fy, d.lo, d.hi, color=col, alpha=.25, lw=0)
     axs[0].plot(d.fy, d.est, color=col, marker='o', ms=2.5, lw=1.2, label=lab)
-axs[0].set_ylabel('Change in NO2 from FY2015 (%)'); axs[0].set_ylim(-42, 4)
+axs[0].set_ylabel('Change in NO$_2$ from FY2015 (%)'); axs[0].set_ylim(-42, 4)
 axs[0].legend(loc='lower left', frameon=False)
 d = t[t.series == '夜間騒音（実測、dB差）']
 axs[1].fill_between(d.fy, d.lo, d.hi, color='#5b4bb7', alpha=.22, lw=0)
 axs[1].plot(d.fy, d.est, color='#5b4bb7', marker='o', ms=2.5, lw=1.2, label='Nighttime noise (n = 7,302 sites)')
-axs[1].set_ylabel('Change in Lnight from FY2015 (dB)'); axs[1].set_ylim(-1.6, 0.5)
+axs[1].set_ylabel('Change in $L_\\mathrm{night}$ from FY2015 (dB)'); axs[1].set_ylim(-1.6, 0.5)
 axs[1].legend(loc='lower left', frameon=False)
 for ax in axs:
     ax.text(2020.5, .97, 'COVID-19', ha='center', va='top', fontsize=6.3, color=INK2, transform=ax.get_xaxis_transform())
@@ -197,10 +199,10 @@ for i, v in enumerate(lv.r):
 wi = CL.iloc[5].r
 ax.axhline(wi, color=INK2, lw=.7, ls='--'); ax.text(4.35, wi + .015, f'Within\nmunicipalities ({wi:.2f})', ha='right', va='bottom', fontsize=5.5, color=INK2)
 ax.set_xticks(range(5)); ax.set_xticklabels(labs, fontsize=6); ax.set_ylim(0, 1); ax.set_xlim(-.4, 4.4)
-ax.set_ylabel('Correlation of nighttime noise and NO2')
+ax.set_ylabel('Correlation of nighttime noise and NO$_2$')
 panel(ax, 'a', -0.35, 1.06)
 ax = fig.add_subplot(gs[0, 1:])
-rows = [('NO2', 91.93), ('Nighttime noise,\ncutoff 200 m (main)', float(CO.loc['騒音分散の市区町村間 %', '200 m（主解析）'])),
+rows = [('NO$_2$', 91.93), ('Nighttime noise,\ncutoff 200 m (main)', float(CO.loc['騒音分散の市区町村間 %', '200 m（主解析）'])),
         ('Nighttime noise,\ncutoff 500 m', float(CO.loc['騒音分散の市区町村間 %', '500 m']))]
 y = np.arange(len(rows))[::-1]
 for yy, (lab, bt) in zip(y, rows):
@@ -211,11 +213,11 @@ ax.set_yticks(y); ax.set_yticklabels([l for l, _ in rows]); ax.set_xlim(0, 100)
 ax.set_xlabel('Share of population-weighted variance (%)')
 h = [plt.Rectangle((0, 0), 1, 1, color=BLUE), plt.Rectangle((0, 0), 1, 1, color=LBLUE)]
 ax.legend(h, ['Between municipalities', 'Within municipalities'], loc='upper center', bbox_to_anchor=(.5, 1.25), ncol=2, frameon=False)
-panel(ax, 'c', -0.26, 1.06)
+panel(ax, 'b', -0.26, 1.06)
 box = (139.68, 35.64, 139.80, 35.72)
 Z = R[(R.lon > box[0]) & (R.lon < box[2]) & (R.lat > box[1]) & (R.lat < box[3])]
-for j, (col, lab, cm, vmin, vmax) in enumerate([('Lnight_2021', 'Nighttime noise, Lnight (dB)', 'magma_r', 40, 70),
-                                                 ('ug', 'NO2 (µg m$^{-3}$)', 'viridis_r', 15, 35)]):
+for j, (col, lab, cm, vmin, vmax) in enumerate([('Lnight_2021', 'Nighttime noise, $L_\\mathrm{night}$ (dB)', 'magma_r', 40, 70),
+                                                 ('ug', 'NO$_2$ (µg m$^{-3}$)', 'viridis_r', 15, 35)]):
     ax = fig.add_subplot(gs[1, j])
     sc = ax.scatter(Z.lon, Z.lat, c=Z[col], s=.4, lw=0, cmap=cm, vmin=vmin, vmax=vmax, rasterized=True)
     ax.set_xlim(box[0], box[2]); ax.set_ylim(box[1], box[3]); ax.set_aspect(1 / np.cos(np.radians(35.68)))
@@ -224,14 +226,14 @@ for j, (col, lab, cm, vmin, vmax) in enumerate([('Lnight_2021', 'Nighttime noise
         s.set_visible(True); s.set_color(INK2); s.set_linewidth(.5)
     cb = fig.colorbar(sc, ax=ax, orientation='horizontal', fraction=.06, pad=.04); cb.set_label(lab, fontsize=6.3); cb.ax.tick_params(labelsize=6)
     if j == 0:
-        panel(ax, 'b', -0.05, 1.03)
+        panel(ax, 'c', -0.05, 1.03)
         km = 1 / (111.32 * np.cos(np.radians(35.68)))
         ax.plot([box[0] + .005, box[0] + .005 + 2 * km], [box[1] + .004] * 2, color=INK, lw=1.2)
         ax.text(box[0] + .005 + km, box[1] + .007, '2 km', ha='center', fontsize=6, bbox=dict(fc='white', ec='none', pad=.5))
 ax = fig.add_subplot(gs[1, 2])
 zz = Z.sample(min(len(Z), 20000), random_state=1)
 ax.scatter(zz.ug, zz.Lnight_2021, s=.6, lw=0, alpha=.35, color=INK2, rasterized=True)
-ax.set_xlabel('NO2 (µg m$^{-3}$)'); ax.set_ylabel('Lnight (dB)'); ax.set_xlim(15, 35); ax.set_ylim(38, 72)
+ax.set_xlabel('NO$_2$ (µg m$^{-3}$)'); ax.set_ylabel('$L_\\mathrm{night}$ (dB)'); ax.set_xlim(15, 35); ax.set_ylim(38, 72)
 rr = np.corrcoef(Z.ug, Z.Lnight_2021)[0, 1]
 ax.text(.03, .97, f'Points in the map area\n(n = {len(Z):,}; r = {rr:.2f})', transform=ax.transAxes, va='top', fontsize=6)
 save(fig, 'fig4')

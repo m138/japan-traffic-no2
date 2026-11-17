@@ -39,7 +39,7 @@ Leave-one-prefecture-out cross-validation against about 1,600 stations per year:
 - An estimated 8.9% of residents (11.2 million) had high co-exposure; 70% of them lived in Tokyo's 23 wards and the designated cities, which hold 30% of the population, and 83% within 100 m of a main road (figures/fig3.png).
 - NO2 varies mainly between municipalities (92% of the population-weighted variance) and nighttime noise mainly within them (11% between municipalities) (figures/fig4.png).
 
-Figures 1–4 of the paper are in `figures/` and are made by `src/make_figures.py`. The interactive map (`docs/`) shows NO2 for each fiscal year, its change, the near-road contribution, nighttime noise and high co-exposure by municipality; `src/make_webmap_data.py` makes its data.
+The summary tables behind the numbers in the paper (key numbers, Table 1, correlations by spatial unit, measured trends, sensitivity analyses) are in `results/` of the Zenodo deposit and are made by `src/release_results.py`. Figures 1–4 of the paper are in `figures/` and are made by `src/make_figures.py`. The interactive map (`docs/`) shows NO2 for each fiscal year, its change, the near-road contribution, nighttime noise and high co-exposure by municipality; `src/make_webmap_data.py` makes its data.
 
 ## What the code does
 1. Computes NOx emissions for every section of the 2015 and 2021 Road Traffic Census from traffic counts, travel speed and the speed-dependent emission factors of NILIM Technical Note 671 (by calendar year).

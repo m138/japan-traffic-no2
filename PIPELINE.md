@@ -80,6 +80,7 @@ python src/popalloc_compare.py W W2 RELEASE_PARQUET OUT 01 02 ... 47
 # Cutoff distance of 500 m for noise sources (Extended Data Table 3)
 NOISE_CUT=500 python src/noise_at_receptors.py W path/to/japan-night-road-noise/src W/nz 01 02 ... 47
 python src/cutoff_sensitivity.py W RELEASE_PARQUET NEAREST_ROAD_PARQUET OUT
+python src/release_results.py WORK OUT/data                # arithmetic-mean Lnight column and summary tables in data/results/
 python src/make_figures.py WORK BOUNDARIES.gpkg figures/   # Figures 1-4
 python src/make_webmap_data.py RELEASE_PARQUET path/to/japan-night-road-noise/docs/muni.geojson docs/muni.geojson
 ```
