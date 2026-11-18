@@ -169,9 +169,11 @@ draw(ax, G[~isl])
 xmin, ymin, xmax, ymax = G[~isl & ~G.muni.str.startswith('01')].total_bounds
 hx = G[G.muni.str.startswith('01')].total_bounds
 ax.set_xlim(xmin, max(xmax, hx[2])); ax.set_ylim(ymin, hx[3])
-for (lab, box, pos) in [('Osaka', (135.35, 34.52, 135.65, 34.82), [0.0, 0.66, 0.28, 0.30]),
-                        ('Tokyo', (139.55, 35.52, 139.95, 35.82), [0.30, 0.66, 0.28, 0.30])]:
-    bb = gpd.GeoSeries([sg.box(*box)], crs=4326).to_crs(6677).total_bounds
+H = 18000  # half-width of each enlarged map (m): both insets are 36 km squares at the same scale
+for (lab, ctr, pos) in [('Osaka', (135.50, 34.67), [0.0, 0.66, 0.28, 0.30]),
+                        ('Tokyo', (139.75, 35.67), [0.30, 0.66, 0.28, 0.30])]:
+    c = gpd.GeoSeries([sg.Point(*ctr)], crs=4326).to_crs(6677).iloc[0]
+    bb = (c.x - H, c.y - H, c.x + H, c.y + H)
     ia = ax.inset_axes(pos); draw(ia, G.cx[bb[0]:bb[2], bb[1]:bb[3]])
     ia.set_xlim(bb[0], bb[2]); ia.set_ylim(bb[1], bb[3]); ia.set_axis_on(); ia.set_xticks([]); ia.set_yticks([]); ia.set_xlabel(''); ia.set_ylabel(''); ia.set_anchor('N')
     for s in ia.spines.values():
