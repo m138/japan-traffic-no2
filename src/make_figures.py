@@ -169,11 +169,11 @@ draw(ax, G[~isl])
 xmin, ymin, xmax, ymax = G[~isl & ~G.muni.str.startswith('01')].total_bounds
 hx = G[G.muni.str.startswith('01')].total_bounds
 ax.set_xlim(xmin, max(xmax, hx[2])); ax.set_ylim(ymin, hx[3])
-for (lab, box, pos) in [('Tokyo', (139.55, 35.52, 139.95, 35.82), [0.0, 0.66, 0.28, 0.30]),
-                        ('Osaka', (135.35, 34.52, 135.65, 34.82), [0.30, 0.66, 0.28, 0.30])]:
+for (lab, box, pos) in [('Osaka', (135.35, 34.52, 135.65, 34.82), [0.0, 0.66, 0.28, 0.30]),
+                        ('Tokyo', (139.55, 35.52, 139.95, 35.82), [0.30, 0.66, 0.28, 0.30])]:
     bb = gpd.GeoSeries([sg.box(*box)], crs=4326).to_crs(6677).total_bounds
     ia = ax.inset_axes(pos); draw(ia, G.cx[bb[0]:bb[2], bb[1]:bb[3]])
-    ia.set_xlim(bb[0], bb[2]); ia.set_ylim(bb[1], bb[3]); ia.set_axis_on(); ia.set_xticks([]); ia.set_yticks([]); ia.set_xlabel(''); ia.set_ylabel('')
+    ia.set_xlim(bb[0], bb[2]); ia.set_ylim(bb[1], bb[3]); ia.set_axis_on(); ia.set_xticks([]); ia.set_yticks([]); ia.set_xlabel(''); ia.set_ylabel(''); ia.set_anchor('N')
     for s in ia.spines.values():
         s.set_visible(True); s.set_color(INK2); s.set_linewidth(.5)
     ia.set_title(lab, fontsize=6.5, loc='left', pad=2)
