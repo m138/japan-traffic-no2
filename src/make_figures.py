@@ -229,13 +229,14 @@ ax.set_yticks(y); ax.set_yticklabels([l for l, _ in rows]); ax.set_xlim(0, 100)
 ax.set_xlabel('Share of population-weighted variance (%)')
 h = [plt.Rectangle((0, 0), 1, 1, color=BLUE), plt.Rectangle((0, 0), 1, 1, color=LBLUE)]
 ax.legend(h, ['Between municipalities', 'Within municipalities'], loc='upper center', bbox_to_anchor=(.5, 1.25), ncol=2, frameon=False)
-panel(ax, 'b', -0.26, 1.06)
+panel(ax, 'b', -0.30, 1.06)
+pb = ax.get_position(); ax.set_position([pb.x0 + 0.09, pb.y0, pb.width - 0.09, pb.height])
 box = (139.68, 35.64, 139.80, 35.72)
 Z = R[(R.lon > box[0]) & (R.lon < box[2]) & (R.lat > box[1]) & (R.lat < box[3])]
 for j, (col, lab, cm, vmin, vmax) in enumerate([('Lnight_2021', 'Nighttime noise, $L_\\mathrm{night}$ (dB)', 'magma_r', 40, 70),
                                                  ('ug', 'NO$_2$ (µg m$^{-3}$)', 'viridis_r', 15, 35)]):
     ax = fig.add_subplot(gs[1, j])
-    sc = ax.scatter(Z.lon, Z.lat, c=Z[col], s=.4, lw=0, cmap=cm, vmin=vmin, vmax=vmax, rasterized=True)
+    sc = ax.scatter(Z.lon, Z.lat, c=Z[col], s=1.6, lw=0, marker='s', cmap=cm, vmin=vmin, vmax=vmax, rasterized=True)
     ax.set_xlim(box[0], box[2]); ax.set_ylim(box[1], box[3]); ax.set_aspect(1 / np.cos(np.radians(35.68)))
     ax.set_xticks([]); ax.set_yticks([])
     for s in ax.spines.values():
