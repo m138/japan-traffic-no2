@@ -34,6 +34,15 @@ def panel(ax, s, x=-0.16, y=1.04):
     ax.text(x, y, s, transform=ax.transAxes, fontweight='bold', fontsize=8, va='bottom', ha='left')
 
 
+def panel_aligned(fig, ax, s, x, ref, yref=1.04):
+    # panel label at the x offset of ax and the height of ref's label (axes with fixed aspect sit lower)
+    fig.canvas.draw()
+    inv = fig.transFigure.inverted()
+    xf = inv.transform(ax.transAxes.transform((x, 0)))[0]
+    yf = inv.transform(ref.transAxes.transform((0, yref)))[1]
+    fig.text(xf, yf, s, fontweight='bold', fontsize=8, va='bottom', ha='left')
+
+
 def save(fig, name):
     fig.savefig(f'{OUT}/{name}.png', dpi=300)
     fig.savefig(f'{OUT}/{name}.pdf')
@@ -76,14 +85,16 @@ for k, col, lab in [('gen', BLUE, 'Ambient'), ('road', ORANGE, 'Roadside')]:
     t = s[s.kind == k]
     ax.scatter(t.NO2_obs, t.NO2_lopo, s=3, color=col, alpha=.55, lw=0, label=f'{lab} (n = {len(t):,}; R² {r2(t.NO2_obs, t.NO2_lopo):.2f})')
 t = s[~s.kind.isin(['gen', 'road'])]
-ax.scatter(t.NO2_obs, t.NO2_lopo, s=9, color='0.25', lw=0, zorder=5, label=f'Remote background (n = {len(t)})')
+ax.scatter(t.NO2_obs, t.NO2_lopo, s=5, color='0.25', lw=0, zorder=5, label=f'Remote background (n = {len(t)})')
 lim = (0, 32)
 ax.plot(lim, lim, color=INK2, lw=.6, ls='--'); ax.set_xlim(lim); ax.set_ylim(lim); ax.set_aspect('equal')
 ax.set_xlabel('Measured NO$_2$ (ppb)'); ax.set_ylabel('Cross-validated prediction (ppb)')
 ax.text(.03, .97, f'All stations: R² = {r2(s.NO2_obs, s.NO2_lopo):.2f}, RMSE = {np.sqrt(((s.NO2_obs - s.NO2_lopo) ** 2).mean()):.2f} ppb',
         transform=ax.transAxes, va='top', fontsize=6.3)
-ax.legend(loc='lower right', frameon=False, markerscale=2.5, handletextpad=.2, fontsize=6)
-panel(ax, 'b', -0.2)
+leg = ax.legend(loc='lower right', bbox_to_anchor=(1.12, 0.0), frameon=False, handletextpad=.2, fontsize=6)
+for hd in leg.legend_handles:
+    hd.set_sizes([12]); hd.set_alpha(1)
+panel_aligned(fig, ax, 'b', -0.2, axs[0])
 save(fig, 'fig1')
 print('fig1', [round(v, 5) for v in R_all], [round(v, 3) for v in R_road])
 
@@ -108,7 +119,7 @@ axs[1].set_ylabel('Change in $L_\\mathrm{night}$ from FY2015 (dB)'); axs[1].set_
 axs[1].legend(loc='lower left', frameon=False)
 for ax in axs:
     ax.text(2020.5, .97, 'COVID-19', ha='center', va='top', fontsize=6.3, color=INK2, transform=ax.get_xaxis_transform())
-panel(axs[0], 'a', -0.16); panel(axs[1], 'b', -0.16)
+panel(axs[0], 'a', -0.16); panel_aligned(fig, axs[1], 'b', -0.16, axs[0])
 save(fig, 'fig2')
 
 # ---------- shared point data ----------
@@ -175,18 +186,20 @@ def draw(a, D, lw=0):
 
 
 ax = fig.add_subplot(gs[:, 1])
+pm = ax.get_position()  # original box: the enlarged maps and legend keep their places
+ax.set_position([pm.x0, pm.y0 - 0.075, pm.width, pm.height])  # national map moved down at the same size
 isl = G.muni.str.startswith('47') | G.muni.isin(['13361', '13362', '13363', '13364', '13381', '13382', '13401', '13402', '13421'])
 draw(ax, G[~isl])
 xmin, ymin, xmax, ymax = G[~isl & ~G.muni.str.startswith('01')].total_bounds
 hx = G[G.muni.str.startswith('01')].total_bounds
-ax.set_xlim(xmin, max(xmax, hx[2])); ax.set_ylim(ymin, hx[3] + 0.12 * (hx[3] - ymin))  # room above Hokkaido for the enlarged maps
+ax.set_xlim(xmin, max(xmax, hx[2])); ax.set_ylim(ymin, hx[3])
 insets = []
 H = 18000  # half-width of each enlarged map (m): both insets are 36 km squares at the same scale
 for (lab, ctr, pos) in [('Osaka', (135.50, 34.67), [0.0, 0.60, 0.36, 0.36]),
                         ('Tokyo', (139.75, 35.67), [0.38, 0.60, 0.36, 0.36])]:
     c = gpd.GeoSeries([sg.Point(*ctr)], crs=4326).to_crs(6677).iloc[0]
     bb = (c.x - H, c.y - H, c.x + H, c.y + H)
-    ia = ax.inset_axes(pos); insets.append(ia); draw(ia, G.cx[bb[0]:bb[2], bb[1]:bb[3]], lw=.4)
+    ia = fig.add_axes([pm.x0 + pos[0] * pm.width, pm.y0 + pos[1] * pm.height, pos[2] * pm.width, pos[3] * pm.height]); insets.append(ia); draw(ia, G.cx[bb[0]:bb[2], bb[1]:bb[3]], lw=.4)
     ia.set_xlim(bb[0], bb[2]); ia.set_ylim(bb[1], bb[3]); ia.set_axis_on(); ia.set_xticks([]); ia.set_yticks([]); ia.set_xlabel(''); ia.set_ylabel(''); ia.set_anchor('N')
     for s in ia.spines.values():
         s.set_visible(True); s.set_color(INK2); s.set_linewidth(.5)
@@ -195,7 +208,7 @@ for (lab, ctr, pos) in [('Osaka', (135.50, 34.67), [0.0, 0.60, 0.36, 0.36]),
 insets[0].text(0.0, -0.03, 'White lines: municipal and ward boundaries', transform=insets[0].transAxes, fontsize=5.5, color=INK2, va='top')
 h = [plt.Rectangle((0, 0), 1, 1, color=cmap(i)) for i in range(cmap.N)] + [plt.Rectangle((0, 0), 1, 1, color='#dddddd')]
 ax.legend(h, ['< 1%', '1–5%', '5–10%', '10–20%', '20–30%', '≥ 30%', 'No residents'], title='High co-exposure\n(share of residents)',
-          loc='lower right', frameon=False, fontsize=6, title_fontsize=6.5)
+          loc='lower right', bbox_to_anchor=(pm.x1, pm.y0), bbox_transform=fig.transFigure, frameon=False, fontsize=6, title_fontsize=6.5)
 ya = fig.transFigure.inverted().transform(ax_a.transAxes.transform((0, 1.04)))[1]
 fig.text(ax.get_position().x0 - 0.005, ya, 'c', fontweight='bold', fontsize=8, va='bottom', ha='left')
 save(fig, 'fig3')
@@ -244,6 +257,7 @@ for j, (col, lab, cm, vmin, vmax) in enumerate([('Lnight_2021', 'Nighttime noise
     cb = fig.colorbar(sc, ax=ax, orientation='horizontal', fraction=.06, pad=.04); cb.set_label(lab, fontsize=6.3); cb.ax.tick_params(labelsize=6)
     if j == 0:
         panel(ax, 'c', -0.05, 1.03)
+        ax.set_title('Tokyo', fontsize=6.5, loc='left', pad=2, x=0.03)
         km = 1 / (111.32 * np.cos(np.radians(35.68)))
         ax.plot([box[0] + .005, box[0] + .005 + 2 * km], [box[1] + .004] * 2, color=INK, lw=1.2)
         ax.text(box[0] + .005 + km, box[1] + .007, '2 km', ha='center', fontsize=6, bbox=dict(fc='white', ec='none', pad=.5))
