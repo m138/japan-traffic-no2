@@ -157,6 +157,7 @@ ax.axvline(NAT, color=INK2, lw=.7, ls='--')
 ax.set_yticks(y); ax.set_yticklabels([names[c] for c in T1.ctype])
 ax.set_xlabel('Residents with high co-exposure (%)'); ax.set_xlim(0, 38)
 panel(ax, 'a', -0.53)
+ax_a = ax
 ax = fig.add_subplot(gs[1, 0])
 y = np.arange(len(dist))[::-1]
 ax.barh(y, [v for _, v in dist], color=ORANGE, height=.65)
@@ -178,7 +179,7 @@ isl = G.muni.str.startswith('47') | G.muni.isin(['13361', '13362', '13363', '133
 draw(ax, G[~isl])
 xmin, ymin, xmax, ymax = G[~isl & ~G.muni.str.startswith('01')].total_bounds
 hx = G[G.muni.str.startswith('01')].total_bounds
-ax.set_xlim(xmin, max(xmax, hx[2])); ax.set_ylim(ymin, hx[3])
+ax.set_xlim(xmin, max(xmax, hx[2])); ax.set_ylim(ymin, hx[3] + 0.12 * (hx[3] - ymin))  # room above Hokkaido for the enlarged maps
 insets = []
 H = 18000  # half-width of each enlarged map (m): both insets are 36 km squares at the same scale
 for (lab, ctr, pos) in [('Osaka', (135.50, 34.67), [0.0, 0.60, 0.36, 0.36]),
@@ -195,7 +196,8 @@ insets[0].text(0.0, -0.03, 'White lines: municipal and ward boundaries', transfo
 h = [plt.Rectangle((0, 0), 1, 1, color=cmap(i)) for i in range(cmap.N)] + [plt.Rectangle((0, 0), 1, 1, color='#dddddd')]
 ax.legend(h, ['< 1%', '1–5%', '5–10%', '10–20%', '20–30%', '≥ 30%', 'No residents'], title='High co-exposure\n(share of residents)',
           loc='lower right', frameon=False, fontsize=6, title_fontsize=6.5)
-panel(ax, 'c', -0.02, 0.98)
+ya = fig.transFigure.inverted().transform(ax_a.transAxes.transform((0, 1.04)))[1]
+fig.text(ax.get_position().x0 - 0.005, ya, 'c', fontweight='bold', fontsize=8, va='bottom', ha='left')
 save(fig, 'fig3')
 print('fig3 national', round(NAT, 2), 'munis without data', miss)
 
