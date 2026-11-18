@@ -131,13 +131,23 @@ dist = [('< 20 m', K['距離 <20 m の住民のうち二重暴露 %']), ('20–5
 M = R.groupby('muni').apply(lambda g: pd.Series({'pop': g.pop_w.sum(), 'dbl': 100 * (g.pop_w * g.dbl).sum() / g.pop_w.sum()}))
 G = gpd.read_file(BND).to_crs(6677)
 G = G.merge(M, left_on='muni', right_index=True, how='left')
+
+
+def fill_slivers(geom, max_area=1e5):
+    # drop interior rings under 10 ha: gaps left by dissolving census small areas, not features
+    parts = getattr(geom, 'geoms', [geom])
+    out = [sg.Polygon(p.exterior, [r for r in p.interiors if sg.Polygon(r).area >= max_area]) for p in parts]
+    return sg.MultiPolygon(out) if len(out) > 1 else out[0]
+
+
+G['geometry'] = G.geometry.apply(fill_slivers)
 miss = G.dbl.isna().sum()
 bins = [0, 1, 5, 10, 20, 30, 100]
 cmap = ListedColormap(['#f1efe8', '#fbd9b8', '#f5ab79', '#e6743f', '#c2471d', '#7f2704'])
 norm = BoundaryNorm(bins, cmap.N)
 
 fig = plt.figure(figsize=(180 * MM, 120 * MM))
-gs = fig.add_gridspec(2, 2, width_ratios=[1, 1.7], height_ratios=[1, 1], wspace=.12, hspace=.45, left=.2, right=.99, top=.95, bottom=.08)
+gs = fig.add_gridspec(2, 2, width_ratios=[1, 2.1], height_ratios=[1, 1], wspace=.06, hspace=.45, left=.155, right=.995, top=.95, bottom=.08)
 ax = fig.add_subplot(gs[0, 0])
 y = np.arange(len(T1))[::-1]
 ax.barh(y, T1['二重暴露%'], color=ORANGE, height=.65)
@@ -146,7 +156,7 @@ for yy, v in zip(y, T1['二重暴露%']):
 ax.axvline(NAT, color=INK2, lw=.7, ls='--')
 ax.set_yticks(y); ax.set_yticklabels([names[c] for c in T1.ctype])
 ax.set_xlabel('Residents with high co-exposure (%)'); ax.set_xlim(0, 38)
-panel(ax, 'a', -0.62)
+panel(ax, 'a', -0.53)
 ax = fig.add_subplot(gs[1, 0])
 y = np.arange(len(dist))[::-1]
 ax.barh(y, [v for _, v in dist], color=ORANGE, height=.65)
@@ -155,11 +165,11 @@ for yy, (_, v) in zip(y, dist):
 ax.axvline(NAT, color=INK2, lw=.7, ls='--')
 ax.set_yticks(y); ax.set_yticklabels([l for l, _ in dist])
 ax.set_ylabel('Distance to nearest main road'); ax.set_xlabel('Residents with high co-exposure (%)'); ax.set_xlim(0, 48)
-panel(ax, 'b', -0.62)
+panel(ax, 'b', -0.53)
 
 
-def draw(a, D):
-    D.plot(ax=a, column='dbl', cmap=cmap, norm=norm, linewidth=.05, edgecolor='#ffffff', missing_kwds={'color': '#dddddd'})
+def draw(a, D, lw=0):
+    D.plot(ax=a, column='dbl', cmap=cmap, norm=norm, linewidth=lw, edgecolor='#ffffff' if lw else 'none', missing_kwds={'color': '#dddddd'})
     a.set_axis_off()
 
 
@@ -169,19 +179,21 @@ draw(ax, G[~isl])
 xmin, ymin, xmax, ymax = G[~isl & ~G.muni.str.startswith('01')].total_bounds
 hx = G[G.muni.str.startswith('01')].total_bounds
 ax.set_xlim(xmin, max(xmax, hx[2])); ax.set_ylim(ymin, hx[3])
+insets = []
 H = 18000  # half-width of each enlarged map (m): both insets are 36 km squares at the same scale
-for (lab, ctr, pos) in [('Osaka', (135.50, 34.67), [0.0, 0.66, 0.28, 0.30]),
-                        ('Tokyo', (139.75, 35.67), [0.30, 0.66, 0.28, 0.30])]:
+for (lab, ctr, pos) in [('Osaka', (135.50, 34.67), [0.0, 0.60, 0.36, 0.36]),
+                        ('Tokyo', (139.75, 35.67), [0.38, 0.60, 0.36, 0.36])]:
     c = gpd.GeoSeries([sg.Point(*ctr)], crs=4326).to_crs(6677).iloc[0]
     bb = (c.x - H, c.y - H, c.x + H, c.y + H)
-    ia = ax.inset_axes(pos); draw(ia, G.cx[bb[0]:bb[2], bb[1]:bb[3]])
+    ia = ax.inset_axes(pos); insets.append(ia); draw(ia, G.cx[bb[0]:bb[2], bb[1]:bb[3]], lw=.4)
     ia.set_xlim(bb[0], bb[2]); ia.set_ylim(bb[1], bb[3]); ia.set_axis_on(); ia.set_xticks([]); ia.set_yticks([]); ia.set_xlabel(''); ia.set_ylabel(''); ia.set_anchor('N')
     for s in ia.spines.values():
         s.set_visible(True); s.set_color(INK2); s.set_linewidth(.5)
     ia.set_title(lab, fontsize=6.5, loc='left', pad=2)
     ax.add_patch(plt.Rectangle((bb[0], bb[1]), bb[2] - bb[0], bb[3] - bb[1], fill=False, ec=INK, lw=.5))
-h = [plt.Rectangle((0, 0), 1, 1, color=cmap(i)) for i in range(cmap.N)]
-ax.legend(h, ['< 1%', '1–5%', '5–10%', '10–20%', '20–30%', '≥ 30%'], title='High co-exposure\n(share of residents)',
+insets[0].text(0.0, -0.03, 'White lines: municipal and ward boundaries', transform=insets[0].transAxes, fontsize=5.5, color=INK2, va='top')
+h = [plt.Rectangle((0, 0), 1, 1, color=cmap(i)) for i in range(cmap.N)] + [plt.Rectangle((0, 0), 1, 1, color='#dddddd')]
+ax.legend(h, ['< 1%', '1–5%', '5–10%', '10–20%', '20–30%', '≥ 30%', 'No residents'], title='High co-exposure\n(share of residents)',
           loc='lower right', frameon=False, fontsize=6, title_fontsize=6.5)
 panel(ax, 'c', -0.02, 0.98)
 save(fig, 'fig3')
