@@ -187,7 +187,7 @@ def draw(a, D, lw=0):
 
 ax = fig.add_subplot(gs[:, 1])
 pm = ax.get_position()  # original box: the enlarged maps and legend keep their places
-ax.set_position([pm.x0, pm.y0 - 0.075, pm.width, pm.height])  # national map moved down at the same size
+ax.set_position([pm.x0 + 0.04, pm.y0 - 0.075, pm.width, pm.height])  # national map moved down at the same size
 isl = G.muni.str.startswith('47') | G.muni.isin(['13361', '13362', '13363', '13364', '13381', '13382', '13401', '13402', '13421'])
 draw(ax, G[~isl])
 xmin, ymin, xmax, ymax = G[~isl & ~G.muni.str.startswith('01')].total_bounds
