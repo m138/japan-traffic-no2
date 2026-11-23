@@ -105,16 +105,18 @@ fig.subplots_adjust(bottom=.18, top=.92)
 for ax in axs:
     ax.axvspan(2019.5, 2021.5, color='#efeeea', lw=0)
     ax.axhline(0, color=INK2, lw=.6)
-    ax.set_xticks(range(2015, 2024)); ax.set_xlim(2014.7, 2023.3); ax.set_xlabel('Fiscal year')
+    ax.set_xticks(range(2015, 2024)); ax.set_xlim(2014.7, 2024.1); ax.set_xlabel('Fiscal year')
 for ser, col, lab in [('NO2 自排局（%変化）', ORANGE, 'Roadside stations (n = 418)'), ('NO2 一般局（%変化）', BLUE, 'Ambient stations (n = 1,299)')]:
     d = t[t.series == ser]
     axs[0].fill_between(d.fy, d.lo, d.hi, color=col, alpha=.25, lw=0)
     axs[0].plot(d.fy, d.est, color=col, marker='o', ms=2.5, lw=1.2, label=lab)
+    e = d[d.fy == 2023].est.iloc[0]; axs[0].text(2023.2, e, f'{e:.0f}%'.replace('-', '−'), color=col, fontsize=6.5, va='center', fontweight='bold')
 axs[0].set_ylabel('Change in NO$_2$ from FY2015 (%)'); axs[0].set_ylim(-42, 4)
 axs[0].legend(loc='lower left', frameon=False)
 d = t[t.series == '夜間騒音（実測、dB差）']
 axs[1].fill_between(d.fy, d.lo, d.hi, color='#5b4bb7', alpha=.22, lw=0)
 axs[1].plot(d.fy, d.est, color='#5b4bb7', marker='o', ms=2.5, lw=1.2, label='Nighttime noise (n = 7,302 sites)')
+e = d[d.fy == 2023].est.iloc[0]; axs[1].text(2023.2, e, f'{e:.2f} dB'.replace('-', '−'), color='#5b4bb7', fontsize=6.5, va='center', fontweight='bold')
 axs[1].set_ylabel('Change in $L_\\mathrm{night}$ from FY2015 (dB)'); axs[1].set_ylim(-1.6, 0.5)
 axs[1].legend(loc='lower left', frameon=False)
 for ax in axs:
