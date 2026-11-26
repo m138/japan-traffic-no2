@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Japan NO2 Grid Map</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+/* Layout: header, control bar, full-height map and a side panel that drops below the map on phones */
+:root{
+  color-scheme:light;
+  --bg:#f7f8fa; --panel:#ffffff; --fg:#14202e; --muted:#5b6675; --line:#d9dee5; --accent:#b9481f; --hl:#1f5fae; --few:#e1e0d9;
+  --sans:"Noto Sans JP","Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  --num:"IBM Plex Mono",ui-monospace,monospace;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;font-size:14px;background:var(--bg);color:var(--fg);font-family:var(--sans);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+header{padding-block:12px 8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:6px 20px;align-items:baseline;border-bottom:1px solid var(--line);background:var(--panel)}
+h1{font-size:1.15rem;margin:0;font-weight:700;text-wrap:balance}
+header p{margin:0;color:var(--muted);font-size:.82rem}
+.controls{padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;background:var(--panel);border-bottom:1px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip,.btn{font:inherit;font-size:.82rem;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.btn{border-radius:6px;min-width:4.2em}
+.chip:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.al{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--muted)}
+#yv{font-family:var(--num);color:var(--fg)}
+#status{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:500;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.8rem;white-space:nowrap}
+#status:empty{display:none}
+select{font:inherit;font-size:.82rem;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg)}
+input[type=range]{width:90px;accent-color:var(--accent)}
+#year{width:130px}
+.other{margin-left:auto;font-size:.82rem}
+a{color:var(--accent)}
+main{flex:1;display:grid;grid-template-columns:1fr 320px;min-height:0}
+#mapwrap{position:relative;min-height:0}
+#map{position:absolute;inset:0;background:#fff;font-family:var(--sans)}
+#map .grid-tile{image-rendering:pixelated}
+#legend{position:absolute;left:12px;bottom:26px;z-index:500;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:.78rem;max-width:230px}
+#legend b{display:block;font-weight:600;margin-bottom:6px}
+#legend .bar{height:11px;border-radius:2px;width:200px}
+#legend .ticks{display:flex;justify-content:space-between;width:200px;font-family:var(--num);font-size:.72rem;margin-top:2px}
+#legend .row{display:flex;align-items:center;gap:7px;margin-top:5px;color:var(--muted)}
+#legend i{width:22px;height:11px;display:inline-block;border-radius:2px;border:1px solid var(--line);box-sizing:border-box}
+aside{border-left:1px solid var(--line);background:var(--panel);padding:14px 16px;overflow:auto;font-size:.85rem;min-width:0}
+aside h2{font-size:1rem;margin:0 0 2px}
+aside .sub{color:var(--muted);font-size:.78rem;margin-bottom:10px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+td{padding:5px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td:last-child{text-align:right;font-family:var(--num);white-space:nowrap;padding-left:8px}
+tr.on td{color:var(--accent);font-weight:600}
+.note{color:var(--muted);font-size:.76rem;line-height:1.6;margin-top:14px}
+.note p{margin:0 0 8px}
+@media (max-width:760px){
+  main{grid-template-columns:1fr;grid-template-rows:minmax(360px,62vh) auto}
+  aside{border-left:0;border-top:1px solid var(--line)}
+  .other{margin-left:0}
+  #legend .bar,#legend .ticks{width:150px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Nitrogen dioxide in Japan by grid cell, fiscal years 2015–2023</h1>
+  <p>Population-weighted means of 12.3 million residential points in grid cells of about 0.4 km</p>
+</header>
+<div class="controls">
+  <div class="chips" role="group" aria-label="Indicator">
+    <button class="chip" type="button" data-ind="no2" aria-pressed="true">NO<sub>2</sub></button>
+    <button class="chip" type="button" data-ind="change" aria-pressed="false">Change in NO<sub>2</sub></button>
+    <button class="chip" type="button" data-ind="coexposure" aria-pressed="false">High co-exposure</button>
+  </div>
+  <div class="al" id="yrbox">
+    <label for="year">Fiscal year</label>
+    <input type="range" id="year" min="2015" max="2023" step="1" value="2022">
+    <span id="yv">2022</span>
+    <button class="btn" type="button" id="play" title="Show the years from 2015 to 2023 one after another">Play</button>
+  </div>
+  <select id="place" aria-label="Go to a place">
+      <option value="">Go to…</option><option value="japan">Japan</option><option value="tokyo">Tokyo</option><option value="osaka">Osaka</option><option value="nagoya">Nagoya</option>
+      <option value="fukuoka">Fukuoka</option><option value="sapporo">Sapporo</option><option value="sendai">Sendai</option><option value="hiroshima">Hiroshima</option><option value="naha">Naha</option>
+  </select>
+  <label class="al">Opacity <input type="range" id="opacity" min="20" max="100" value="100" aria-label="Opacity of the grid"></label>
+  <label class="al"><input type="checkbox" id="base" checked> Background map</label>
+  <a class="other" href="./">Map by municipality</a>
+</div>
+<main>
+  <div id="mapwrap">
+    <div id="map" aria-label="Map of Japan with grid cells colored by the selected indicator"></div>
+    <div id="legend"></div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </div>
+  <aside>
+    <h2 id="cellTitle">Point to a cell</h2>
+    <div class="sub" id="cellSub">Move the pointer over the map, or tap it, to see the values of a cell.</div>
+    <table id="vals"></table>
+    <div class="note">
+      <p><b>NO<sub>2</sub>.</b> Annual mean nitrogen dioxide (µg/m³; 1 ppb = 1.88 µg/m³), estimated for each fiscal year from the Road Traffic Census, monitoring stations and satellite data. The estimates are made at residential points, which are random points inside each census small area, about one per 10 residents. A cell shows the population-weighted mean of its points. The color scale is the same for all years.</p>
+      <p><b>Change in NO<sub>2</sub>.</b> NO<sub>2</sub> of fiscal year 2023 minus NO<sub>2</sub> of fiscal year 2015. The estimate has a lower bound of 0.94 µg/m³ (0.5 ppb), and its error in cross-validation is about 2 ppb (3.8 µg/m³). Some cells in areas with low NO<sub>2</sub> show a small increase that is within this error. At the monitoring stations with data for both years, NO<sub>2</sub> rose at 11 of 1,449. Increases of more than 4 µg/m³ are rare (404 cells). Some of them follow expressway sections that are new in the 2021 traffic census, and the others are in areas with low NO<sub>2</sub>, where the estimate is uncertain.</p>
+      <p><b>High co-exposure.</b> Share of the residents of a cell with L<sub>night</sub> ≥ 55 dB and NO<sub>2</sub> ≥ 20 µg/m³ (fiscal year 2022). L<sub>night</sub> is the outdoor nighttime noise (22:00–06:00, 4 m) from census roads within 200 m with 2021 traffic. Local roads and screening by buildings are not included.</p>
+      <p><b>Reading the map.</b> Cells are 0.004° (about 0.4 km). Coarser cells are shown at small scales. Cells without residents are not colored, and gray cells have few residents. Outside cities a cell often holds only one or two points, so the value of a single cell is uncertain. The values are for comparing areas, not for single homes.</p>
+      <p>Source: D. Matsushita, “Diverging trends in nitrogen dioxide and nighttime road traffic noise in Japanese cities” (submitted). Code: <a href="https://github.com/m138/japan-traffic-no2" target="_blank" rel="noopener">github.com/m138/japan-traffic-no2</a> (MIT). Background map: GSI Tiles (Geospatial Information Authority of Japan). A grid map of nighttime noise is in a <a href="https://m138.github.io/japan-road-noise-allocation/grid.html" target="_blank" rel="noopener">related project</a>.</p>
+    </div>
+  </aside>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="grid_no2_2022.js"></script>
+<script>
+// Grid data (window.GRID_DATA): one file per layer, loaded when first needed. For each level, blocks of 256 x 256 cells
+// as 8-bit PNG images (0 no residents, 1 few residents, 3-255 value on the linear scale given below).
+const D=window.GRID_DATA=window.GRID_DATA||{}, B=256;
+const BOX=[122.9,146.0,24.0,45.6], RES=[0.004,0.016,0.064], CELL=['about 0.4 km','about 1.6 km','about 6 km'];
+const IND={
+  no2:{name:y=>'NO₂, fiscal year '+y,title:y=>'NO<sub>2</sub>, fiscal year '+y+' (µg/m³)',scale:[0,50.4],
+    stops:[[0,'#fbe3cf'],[8,'#f7c29f'],[16,'#ef9a6a'],[24,'#de6f3d'],[32,'#b9481f'],[40,'#7d2a0e']],ticks:[0,10,20,30,'40+'],
+    fmt:(v,c)=>(c===255?'≥ ':'')+v.toFixed(1)+' µg/m³'},
+  change:{name:()=>'Change in NO₂, 2015 to 2023',title:()=>'Change in NO<sub>2</sub>, fiscal year 2015 to 2023 (µg/m³)',scale:[-28,12.32],
+    stops:[[-16,'#313695'],[-12.8,'#4575b4'],[-9.6,'#74add1'],[-6.4,'#abd9e9'],[-3.2,'#e0f3f8'],[0,'#ffffbf'],[3.2,'#fee090'],[6.4,'#fdae61'],[9.6,'#f46d43'],[12.8,'#d73027'],[16,'#a50026']],ticks:['≤−16','−8','0','+8','≥+16'],
+    fmt:v=>(v>0.05?'+':v<-0.05?'−':'')+Math.abs(v).toFixed(1)+' µg/m³'},
+  coexposure:{name:()=>'Residents with high co-exposure',title:()=>'Residents with high co-exposure (%)',scale:[0,100.8],
+    stops:[[0,'#f3ecf7'],[20,'#dcc9e8'],[40,'#bd9bd3'],[60,'#9668b6'],[80,'#6d3d93'],[100,'#45206b']],ticks:[0,25,50,75,100],
+    fmt:v=>Math.min(100,v).toFixed(0)+'%'}
+};
+const PLACES={japan:[[30.5,128.5],[45.6,146]],tokyo:[35.68,139.76],osaka:[34.69,135.5],nagoya:[35.17,136.9],fukuoka:[33.59,130.4],sapporo:[43.06,141.35],sendai:[38.26,140.88],hiroshima:[34.39,132.46],naha:[26.21,127.68]};
+let cur='no2', year=2022, seq=0, playing=false, run=0;
+const keyOf=(ind,y)=>ind==='no2'?'no2_'+y:ind, dkey=()=>keyOf(cur,year);
+const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const value=(ind,c)=>IND[ind].scale[0]+(c-3)/252*(IND[ind].scale[1]-IND[ind].scale[0]);
+const levelOf=z=>z>=10?0:z>=8?1:2;
+
+// Color table of each indicator: code -> RGBA
+for(const k in IND){
+  const S=IND[k].stops.map(s=>[s[0],hex(s[1])]), lut=new Uint8ClampedArray(1024), few=hex('#e1e0d9');
+  lut.set([few[0],few[1],few[2],255],4);
+  for(let c=3;c<256;c++){
+    const v=Math.min(S[S.length-1][0],Math.max(S[0][0],value(k,c)));
+    let i=0; while(i<S.length-2&&v>S[i+1][0]) i++;
+    const f=(v-S[i][0])/(S[i+1][0]-S[i][0]);
+    for(let j=0;j<3;j++) lut[c*4+j]=Math.round(S[i][1][j]+(S[i+1][1][j]-S[i][1][j])*f);
+    lut[c*4+3]=255;
+  }
+  IND[k].lut=lut;
+}
+
+// A data file is fetched once, when its layer is first shown
+const files={};
+function load(key){
+  if(D[key]) return Promise.resolve();
+  return files[key]||(files[key]=new Promise((res,rej)=>{
+    const s=document.createElement('script'); s.src='grid_'+key+'.js';
+    s.onload=()=>D[key]?res():rej(new Error('no data')); s.onerror=()=>{delete files[key]; s.remove(); rej(new Error('not loaded'));};
+    document.head.appendChild(s);
+  }));
+}
+
+// Blocks are decoded when a tile first needs them
+const pending={}, ready={};
+function block(key,lev,id){
+  const k=key+'|'+lev+'|'+id;
+  if(k in pending) return pending[k];
+  const b64=D[key].levels[lev].blocks[id];
+  if(!b64){ready[k]=null; return pending[k]=Promise.resolve(null);}
+  return pending[k]=new Promise((res,rej)=>{
+    const im=new Image();
+    im.onload=()=>{
+      const c=document.createElement('canvas'); c.width=c.height=B;
+      const x=c.getContext('2d',{willReadFrequently:true}); x.drawImage(im,0,0);
+      const d=x.getImageData(0,0,B,B).data, a=new Uint8Array(B*B);
+      for(let i=0;i<B*B;i++) a[i]=d[i*4];
+      ready[k]=a; res(a);
+    };
+    im.onerror=rej; im.src='data:image/png;base64,'+b64;
+  });
+}
+const lonOf=(x,z)=>x/Math.pow(2,z)*360-180;
+const latOf=(y,z)=>Math.atan(Math.sinh(Math.PI*(1-2*y/Math.pow(2,z))))*180/Math.PI;
+
+async function render(canvas,coords,ind,key){
+  const job=canvas._job=(canvas._job||0)+1;
+  const lev=levelOf(coords.z), G=D[key].levels[lev], [x0,,y0]=BOX, lut=IND[ind].lut;
+  const ix=new Int32Array(256), iy=new Int32Array(256), need=new Set();
+  for(let p=0;p<256;p++){
+    ix[p]=Math.floor((lonOf(coords.x+(p+.5)/256,coords.z)-x0)/G.res);
+    iy[p]=Math.floor((latOf(coords.y+(p+.5)/256,coords.z)-y0)/G.res);
+  }
+  for(const cy of new Set(Array.from(iy,v=>Math.floor(v/B)))) for(const cx of new Set(Array.from(ix,v=>Math.floor(v/B))))
+    if(cx>=0&&cy>=0&&cx<G.ncx) need.add(cy*G.ncx+cx);
+  const blocks={}; await Promise.all([...need].map(async id=>{blocks[id]=await block(key,lev,id);}));
+  if(canvas._job!==job) return;                      // a newer layer was requested for this tile in the meantime
+  const ctx=canvas.getContext('2d'), img=ctx.createImageData(256,256), out=img.data;
+  for(let py=0;py<256;py++){
+    const y=iy[py]; if(y<0||y>=G.ny) continue;
+    const cy=Math.floor(y/B), ry=(y%B)*B;
+    for(let px=0;px<256;px++){
+      const x=ix[px]; if(x<0||x>=G.nx) continue;
+      const a=blocks[cy*G.ncx+Math.floor(x/B)]; if(!a) continue;
+      const c=a[ry+x%B]; if(!c) continue;
+      const o=(py*256+px)*4, q=c*4;
+      out[o]=lut[q]; out[o+1]=lut[q+1]; out[o+2]=lut[q+2]; out[o+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+
+const map=L.map('map',{minZoom:5,maxZoom:14,zoomSnap:1,maxBounds:[[20,115],[50,155]],maxBoundsViscosity:.8});
+map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
+const base=L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{minZoom:5,maxZoom:18,attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">GSI Tiles</a>'}).addTo(map);
+map.createPane('grid'); const pane=map.getPane('grid'); pane.style.zIndex=350; pane.style.mixBlendMode='multiply';   // the grid tints the background map, so roads and names stay readable
+const Grid=L.GridLayer.extend({createTile(coords,done){
+  const t=document.createElement('canvas'); t.width=t.height=256; t.className='grid-tile';
+  render(t,coords,cur,dkey()).then(()=>done(null,t),e=>done(e,t)); return t;
+}});
+const grid=new Grid({pane:'grid',tileSize:256,minZoom:5,maxZoom:14,bounds:[[24,122.9],[45.6,146]],updateWhenZooming:false}).addTo(map);
+map.fitBounds(PLACES.japan);
+// Redraw the tiles in place, so that a change of year does not blank the map
+function repaint(){
+  const T=grid._tiles; if(!T){grid.redraw(); return;}
+  for(const id in T) render(T[id].el,T[id].coords,cur,dkey()).catch(()=>{});
+}
+
+// Legend
+function legend(){
+  const I=IND[cur], lo=I.stops[0][0], hi=I.stops[I.stops.length-1][0];
+  document.getElementById('legend').innerHTML='<b>'+I.title(year)+'</b><div class="bar" style="background:linear-gradient(90deg,'+I.stops.map(s=>s[1]+' '+((s[0]-lo)/(hi-lo)*100).toFixed(1)+'%').join(',')+')"></div>'
+    +'<div class="ticks">'+I.ticks.map(t=>'<span>'+t+'</span>').join('')+'</div>'
+    +'<div class="row"><i style="background:var(--few)"></i>Few residents</div><div class="row">Not colored: no residents</div>';
+}
+
+// Values of the cell under the pointer
+let mark=null, last=null;
+const fmt=(ind,c)=>c==null?'…':c===0?'No residents':c===1?'Few residents':IND[ind].fmt(value(ind,c),c);
+function show(latlng){
+  last=latlng;
+  const [x0,x1,y0,y1]=BOX, lev=levelOf(Math.round(map.getZoom())), res=RES[lev];
+  if(latlng.lng<x0||latlng.lng>=x1||latlng.lat<y0||latlng.lat>=y1){if(mark){mark.remove();mark=null;} return;}
+  const ix=Math.floor((latlng.lng-x0)/res), iy=Math.floor((latlng.lat-y0)/res), codes={};
+  for(const ind in IND){
+    const key=keyOf(ind,year), G=D[key]&&D[key].levels[lev];
+    if(!G){codes[ind]=null; continue;}
+    const id=Math.floor(iy/B)*G.ncx+Math.floor(ix/B), k=key+'|'+lev+'|'+id;
+    if(k in ready) codes[ind]=ready[k]?ready[k][(iy%B)*B+ix%B]:0;
+    else{codes[ind]=null; block(key,lev,id).then(()=>{if(last===latlng) show(latlng);},()=>{});}
+  }
+  const s=y0+iy*res, w=x0+ix*res, bounds=[[s,w],[s+res,w+res]];
+  if(mark) mark.setBounds(bounds); else mark=L.rectangle(bounds,{color:'#14202e',weight:2,fill:false,interactive:false}).addTo(map);
+  document.getElementById('cellTitle').textContent=(s+res/2).toFixed(3)+'°N, '+(w+res/2).toFixed(3)+'°E';
+  document.getElementById('cellSub').textContent='Cell of '+CELL[lev]+(lev?'. Zoom in to see cells of about 0.4 km.':'.');
+  document.getElementById('vals').innerHTML=Object.keys(IND).map(ind=>'<tr'+(ind===cur?' class="on"':'')+'><td>'+IND[ind].name(year)+'</td><td>'+fmt(ind,codes[ind])+'</td></tr>').join('');
+}
+map.on('mousemove',e=>show(e.latlng)); map.on('click',e=>show(e.latlng)); map.on('zoomend',()=>{if(last) show(last);});
+
+// Controls
+const $=id=>document.getElementById(id), status=$('status');
+async function setLayer(ind,y){
+  const req=++seq, key=keyOf(ind,y);
+  if(ind==='no2'){$('year').value=y; $('yv').textContent=y;}
+  if(!D[key]) status.textContent='Loading…';
+  try{await load(key);}catch(e){if(req===seq){status.textContent='Could not load the data. Please try again.'; $('year').value=year; $('yv').textContent=year;} return false;}
+  if(req!==seq) return false;
+  status.textContent=''; cur=ind; year=y;
+  document.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.ind===cur));
+  $('yrbox').hidden=cur!=='no2';
+  legend(); repaint(); if(last) show(last);
+  return true;
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function stop(){playing=false; run++; $('play').textContent='Play';}
+async function play(){
+  if(playing){stop(); return;}
+  const me=++run; playing=true; $('play').textContent='Stop';
+  for(let y=year>=2023?2015:year+1;playing&&me===run&&y<=2023;y++){
+    if(!(await setLayer('no2',y))) break;
+    if(y<2023) load('no2_'+(y+1)).catch(()=>{});
+    await sleep(900);
+  }
+  if(me===run) stop();
+}
+document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{stop(); setLayer(b.dataset.ind,year);});
+$('year').oninput=e=>{stop(); setLayer('no2',+e.target.value);};
+$('play').onclick=play;
+$('place').onchange=e=>{const p=PLACES[e.target.value]; e.target.value=''; if(!p) return; if(Array.isArray(p[0])) map.fitBounds(p); else map.setView(p,11);};
+$('opacity').oninput=e=>{pane.style.opacity=e.target.value/100;};
+$('base').onchange=e=>{if(e.target.checked) base.addTo(map); else base.remove();};
+legend();
+// The other two layers are fetched in the background, so that the panel can show all three values of a cell
+for(const k of ['change','coexposure']) load(k).then(()=>{if(last) show(last);},()=>{});
+</script>
+</body>
+</html>

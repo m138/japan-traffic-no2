@@ -2,7 +2,7 @@
 
 論文「Diverging trends in nitrogen dioxide and nighttime road traffic noise in Japanese cities」（松下大輔、ORCID 0000-0002-6765-9366、投稿中）のコードと推計値です。公開データだけを使い、日本の全人口をカバーする約1,230万の住居地点で、2015〜2023年度の各年度の二酸化窒素（NO2）年平均濃度を推計します。同じ地点に姉妹モデル [japan-night-road-noise](https://github.com/m138/japan-night-road-noise) の夜間騒音（Lnight）を付けているので、二つの暴露を同じ住まいで比べられます。
 
-図1〜4は figures/ にあります（src/make_figures.py で作成）。市区町村別のインタラクティブ地図：https://m138.github.io/japan-traffic-no2/ （年度別のNO2、変化率、道路の寄与分、夜間騒音、二重高暴露）。
+図1〜4は figures/ にあります（src/make_figures.py で作成）。市区町村別のインタラクティブ地図：https://m138.github.io/japan-traffic-no2/ （年度別のNO2、変化率、道路の寄与分、夜間騒音、二重高暴露）。約0.4 kmの格子の地図：https://m138.github.io/japan-traffic-no2/grid.html （年度別のNO2、2015〜2023年度の変化、二重高暴露。データは src/make_grid_data.py で作成）。
 
 > 状態：論文は審査中です。推計値：https://doi.org/10.5281/zenodo.24299015 。コード（v1.0.0）：https://doi.org/10.5281/zenodo.24299223 。
 

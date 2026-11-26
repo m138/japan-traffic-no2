@@ -83,4 +83,5 @@ python src/cutoff_sensitivity.py W RELEASE_PARQUET NEAREST_ROAD_PARQUET OUT
 python src/release_results.py WORK OUT/data                # arithmetic-mean Lnight column and summary tables in data/results/
 python src/make_figures.py WORK BOUNDARIES.gpkg figures/   # Figures 1-4
 python src/make_webmap_data.py RELEASE_PARQUET path/to/japan-night-road-noise/docs/muni.geojson docs/muni.geojson
+python src/make_grid_data.py RELEASE_PARQUET docs          # grid map (docs/grid.html): NO2 by fiscal year, change, high co-exposure
 ```

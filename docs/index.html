@@ -20,6 +20,7 @@ body{background:var(--bg);color:var(--fg);font-family:var(--sans);display:flex;f
 header{padding-block:12px 8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:6px 20px;align-items:baseline;border-bottom:1px solid var(--line);background:var(--panel)}
 h1{font-size:1.15rem;margin:0;font-weight:700;text-wrap:balance}
 header p{margin:0;color:var(--muted);font-size:.82rem}
+.glink{margin-left:auto;font-size:.82rem;color:var(--accent)}
 .controls{padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border-bottom:1px solid var(--line)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font:inherit;font-size:.82rem;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
@@ -66,6 +67,7 @@ tr.on td{color:var(--accent);font-weight:600}
 <header>
   <h1>Nitrogen dioxide and nighttime road traffic noise in Japan, by municipality</h1>
   <p>Estimates at 12.3 million residential points, aggregated with population weights</p>
+  <a class="glink" href="grid.html">Grid map of NO2, 2015–2023</a>
 </header>
 <div class="controls">
   <div class="chips" id="chips" role="group" aria-label="Indicator"></div>
